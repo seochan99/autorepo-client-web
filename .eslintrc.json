@@ -1,0 +1,73 @@
+{
+    "root": true,
+    "extends": [
+        "next/core-web-vitals",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:prettier/recommended",
+        "plugin:tailwindcss/recommended",
+        "prettier"
+    ],
+    "plugins": [
+        "prettier",
+        "tailwindcss",
+        "unused-imports",
+        "simple-import-sort"
+    ],
+    "rules": {
+        "unused-imports/no-unused-imports": "warn",
+        "unused-imports/no-unused-vars": [
+            "warn",
+            {
+                "vars": "all",
+                "varsIgnorePattern": "^_",
+                "args": "after-used",
+                "argsIgnorePattern": "^_"
+            }
+        ],
+        "prettier/prettier": [
+            "error",
+            {
+                "singleQuote": true,
+                "endOfLine": "auto"
+            }
+        ]
+    },
+
+    "overrides": [
+        {
+            "files": ["**/*.ts", "**/*.tsx"],
+            "plugins": [
+                "@typescript-eslint",
+                "unused-imports",
+                "tailwindcss",
+                "simple-import-sort",
+                "react-hooks"
+            ],
+            "extends": [
+                "plugin:tailwindcss/recommended",
+                "next/core-web-vitals",
+                "plugin:prettier/recommended"
+            ],
+            "parser": "@typescript-eslint/parser",
+            "parserOptions": {
+                "project": "./tsconfig.json",
+                "sourceType": "module",
+                "ecmaVersion": "latest"
+            },
+            "rules": {
+                "simple-import-sort/imports": "warn",
+                "simple-import-sort/exports": "warn",
+                "prettier/prettier": [
+                    "error",
+                    {
+                        "singleQuote": true,
+                        "endOfLine": "auto"
+                    }
+                ],
+                "no-unused-vars": "warn",
+                "@typescript-eslint/no-unused-vars": "warn",
+                "tailwindcss/no-custom-classname": "error"
+            }
+        }
+    ]
+}
