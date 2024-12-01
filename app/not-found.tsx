@@ -1,10 +1,12 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
-import Lottie from 'lottie-react';
 import Link from 'next/link';
 
-import githubCatAnimation from '../public/animations/github-animation.json';
+// Lottie를 동적으로 import
+const Lottie = dynamic(() => import('lottie-react'), { ssr: false });
+import githubAnimation from '../public/animations/github-animation.json';
 
 export default function NotFound() {
     return (
@@ -15,11 +17,14 @@ export default function NotFound() {
                 className="text-center"
             >
                 <div className="mx-auto mb-8 w-64">
-                    <Lottie
-                        animationData={githubCatAnimation}
-                        loop={true}
-                        className="drop-shadow-lg"
-                    />
+                    {/* Lottie 컴포넌트를 조건부 렌더링 */}
+                    {typeof window !== 'undefined' && (
+                        <Lottie
+                            animationData={githubAnimation}
+                            loop={true}
+                            className="drop-shadow-lg"
+                        />
+                    )}
                 </div>
                 <h1 className="mb-4 text-4xl font-bold text-neutral-900">
                     404 - 앗! 이 페이지는 숨어버렸네요
