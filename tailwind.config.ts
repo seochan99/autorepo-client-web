@@ -10,6 +10,16 @@ const config: Config = {
     ],
     theme: {
         extend: {
+            height: {
+                'screen-lvh': '100lvh',
+                'screen-vh': '100vh',
+            },
+
+            screens: {
+                desktop: '961px',
+                tablet: '521px',
+                mobile: '320px',
+            },
             colors: {
                 primary: {
                     100: '#D5E1FF',
@@ -34,6 +44,7 @@ const config: Config = {
                     900: '#333957',
                 },
                 neutral: {
+                    50: '#F2F2F7',
                     100: '#E9E9F1',
                     200: '#DBDBE6',
                     300: '#CBCBD8',
@@ -56,7 +67,7 @@ const config: Config = {
                     900: '#531A1A',
                 },
                 white: '#FFFFFF',
-                black: '#000000',
+                black: '#151515',
             },
             fontFamily: {
                 'pretendard-regular': ['Pretendard', 'sans-serif'],
@@ -101,8 +112,13 @@ const config: Config = {
                     from: { transform: 'translateX(0)' },
                     to: { transform: 'translateX(-60%)' },
                 },
+                scroll: {
+                    '0%': { transform: 'translateX(0)' },
+                    '100%': { transform: 'translateX(-50%)' },
+                },
             },
             animation: {
+                scroll: 'scroll 30s linear infinite',
                 slideRight: 'slideRight 1s forwards',
                 maskSlideRight: 'maskSlideRight 1s forwards',
                 fadeIn: 'fadeIn 1s forwards',

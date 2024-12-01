@@ -1,14 +1,15 @@
-const NotFoundPage = () => {
+import Link from 'next/link';
+
+export default function NotFound() {
     return (
-        <div className="mx-5 flex h-[90%] flex-col items-center justify-center">
-            <div className="text-2xl font-bold text-green-500">NOT FOUND!</div>
-            <div className="text-center text-base font-normal leading-6 text-gray-600">
-                요청하신 페이지를 찾을 수 없습니다.
-                <br />
-                입력하신 주소가 정확한지 확인해주세요.
-            </div>
+        <div className="flex h-screen flex-col items-center justify-center text-center">
+            <h1 className="mb-4 text-4xl font-bold">404 - Page Not Found</h1>
+            <p className="mb-8 text-lg">
+                죄송합니다, 찾을 수 없는 페이지입니다.
+            </p>
+            <Link href="/" className="text-primary-500 hover:underline">
+                홈으로 돌아가기
+            </Link>
         </div>
     );
-};
-
-export default NotFoundPage;
+}
