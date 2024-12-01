@@ -1,89 +1,156 @@
+'use client';
+
+import { motion } from 'framer-motion';
 import { ReactElement } from 'react';
+
+const fadeInUp = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6 },
+};
+
+const staggerContainer = {
+    animate: {
+        transition: {
+            staggerChildren: 0.2,
+        },
+    },
+};
+
+const features = [
+    {
+        icon: '📝',
+        title: 'README 자동 생성',
+        description: '레포지토리 내용을 기반으로 자동으로 README를 생성합니다.',
+    },
+    {
+        icon: '🎨',
+        title: '커스텀 템플릿',
+        description: '프로젝트에 맞는 다양한 커스터마이징 옵션을 제공합니다.',
+    },
+    {
+        icon: '🔄',
+        title: 'GitHub 연동',
+        description:
+            'GitHub와의 원활한 연동으로 메타데이터를 자동으로 가져옵니다.',
+    },
+    {
+        icon: '🏷️',
+        title: '라벨 생성',
+        description:
+            '프로젝트에 필요한 이슈 라벨을 자동으로 생성하고 관리합니다.',
+    },
+];
 
 const IntroPage = (): ReactElement => {
     return (
-        <div className="mx-auto w-4/5 mt-10 p-8 bg-white border border-gray-300  space-y-8">
-            <h1 className="text-4xl font-bold text-primary-600 text-center animate-bounce">
-                🚀 AutoRep 레포지토리 소개 🚀
-            </h1>
-            <p className="text-lg text-gray-600 text-center">
-                AutoRep 레포지토리의 기능과 목적을 살펴보고, 개발 효율성을
-                높이세요!
-            </p>
-
-            <section className="space-y-4">
-                <h2 className="text-2xl font-semibold text-primary-500">
-                    📄 레포지토리 설명
-                </h2>
-                <p className="text-gray-700 leading-relaxed">
-                    AutoRep 레포지토리는 프로젝트 문서를 자동으로 생성하고
-                    관리할 수 있게 도와주는 레포지토리입니다. AI 기반 도구를
-                    활용하여 문서화 워크플로우를 간소화하며, 개발자들이 코드
-                    작성에 집중할 수 있도록 돕습니다.
-                </p>
-            </section>
-
-            <section className="space-y-4">
-                <h2 className="text-2xl font-semibold text-primary-500">
-                    ✨ 주요 기능
-                </h2>
-
-                <p>레포지토리 내용을 기반으로 자동 README 생성</p>
-                <p>프로젝트에 맞는 커스터마이징 가능한 템플릿 제공</p>
-                <p>GitHub와의 연동으로 메타데이터 자동 불러오기</p>
-                <p>다국어 지원 및 다양한 서식 옵션 제공</p>
-                <p>실시간 미리보기 및 편집 기능 지원</p>
-            </section>
-
-            <section className="space-y-4">
-                <h2 className="text-2xl font-semibold text-primary-500">
-                    🚀 시작하기
-                </h2>
-                <p className="text-gray-700 leading-relaxed">
-                    AutoRep을 사용하려면 GitHub 계정을 연결하고 원하는
-                    레포지토리를 선택하세요. AutoRep이 자동으로 초기 README
-                    파일을 생성해주며, 이후 자유롭게 커스터마이징할 수 있습니다.
-                </p>
-            </section>
-
-            <section className="space-y-4">
-                <h2 className="text-2xl font-semibold text-primary-500">
-                    📚 추가 리소스
-                </h2>
-
-                <p>
-                    <a
-                        href="/docs"
-                        className="text-primary-600 hover:underpne hover:animate-pulse"
+        <motion.div
+            initial="initial"
+            animate="animate"
+            className="min-h-screen bg-gradient-to-b from-neutral-50 to-white py-16"
+        >
+            <motion.div
+                variants={staggerContainer}
+                className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8"
+            >
+                {/* 헤더 섹션 */}
+                <motion.div variants={fadeInUp} className="text-center">
+                    <motion.h1
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                        className="bg-gradient-to-r from-neutral-800 to-neutral-900 bg-clip-text text-5xl font-bold text-transparent"
                     >
-                        📘 문서
-                    </a>{' '}
-                    - AutoRep의 기능과 설정 방법을 자세히 알아보세요.
-                </p>
-                <p>
-                    <a
-                        href="/support"
-                        className="text-primary-600 hover:underpne hover:animate-pulse"
+                        🚀 AutoRep
+                    </motion.h1>
+                    <motion.p
+                        variants={fadeInUp}
+                        className="mt-4 text-xl text-neutral-600"
                     >
-                        🛠️ 지원
-                    </a>{' '}
-                    - 지원팀에게 도움을 받거나 커뮤니티 포럼에 참여하세요.
-                </p>
-                <p>
-                    <a
-                        href="/contact"
-                        className="text-primary-600 hover:underpne hover:animate-pulse"
-                    >
-                        📞 연락하기
-                    </a>{' '}
-                    - 더 많은 정보나 파트너십에 대해 문의해 주세요.
-                </p>
-            </section>
+                        프로젝트 문서화를 더 스마트하게
+                    </motion.p>
+                </motion.div>
 
-            <footer className="text-center mt-8 text-gray-500">
-                &copy; {new Date().getFullYear()} AutoRep. 모든 권리 보유.
-            </footer>
-        </div>
+                {/* 기능 그리드 */}
+                <motion.div
+                    variants={staggerContainer}
+                    className="mt-20 grid gap-8 sm:grid-cols-2 lg:grid-cols-4"
+                >
+                    {features.map((feature, index) => (
+                        <motion.div
+                            key={index}
+                            variants={fadeInUp}
+                            whileHover={{ scale: 1.05 }}
+                            className="rounded-xl bg-white p-6 shadow-lg transition-shadow hover:shadow-xl"
+                        >
+                            <div className="text-4xl">{feature.icon}</div>
+                            <h3 className="mt-4 text-xl font-semibold text-neutral-900">
+                                {feature.title}
+                            </h3>
+                            <p className="mt-2 text-neutral-600">
+                                {feature.description}
+                            </p>
+                        </motion.div>
+                    ))}
+                </motion.div>
+
+                {/* 시작하기 섹션 */}
+                <motion.section
+                    variants={fadeInUp}
+                    className="mt-20 rounded-2xl bg-neutral-900 p-8 text-white"
+                >
+                    <h2 className="text-3xl font-bold">시작하기</h2>
+                    <p className="mt-4 text-lg text-neutral-200">
+                        AutoRep을 사용하려면 GitHub 계정을 연결하고 원하는
+                        레포지토리를 선택하세요. 자동으로 초기 README 파일을
+                        생성해주며, 이후 자유롭게 커스터마이징할 수 있습니다.
+                    </p>
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="mt-6 rounded-lg bg-white px-6 py-3 font-semibold text-neutral-900 shadow-lg transition-colors hover:bg-neutral-50"
+                    >
+                        지금 시작하기
+                    </motion.button>
+                </motion.section>
+
+                {/* 리소스 섹션 */}
+                <motion.section
+                    variants={staggerContainer}
+                    className="mt-20 grid gap-6 sm:grid-cols-3"
+                >
+                    {[
+                        { icon: '📘', title: '문서', link: '/docs' },
+                        { icon: '🛠️', title: '지원', link: '/support' },
+                        { icon: '📞', title: '연락하기', link: '/contact' },
+                    ].map((item, index) => (
+                        <motion.a
+                            key={index}
+                            href={item.link}
+                            variants={fadeInUp}
+                            whileHover={{ scale: 1.05 }}
+                            className="flex items-center justify-center rounded-xl bg-white p-6 shadow-md transition-shadow hover:shadow-lg"
+                        >
+                            <span className="mr-3 text-2xl">{item.icon}</span>
+                            <span className="text-lg font-medium text-neutral-900">
+                                {item.title}
+                            </span>
+                        </motion.a>
+                    ))}
+                </motion.section>
+
+                {/* 푸터 */}
+                <motion.footer
+                    variants={fadeInUp}
+                    className="mt-20 text-center text-neutral-600"
+                >
+                    <p>
+                        &copy; {new Date().getFullYear()} AutoRep. 모든 권리
+                        보유.
+                    </p>
+                </motion.footer>
+            </motion.div>
+        </motion.div>
     );
 };
 

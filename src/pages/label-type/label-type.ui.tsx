@@ -1,9 +1,11 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { useParams } from 'next/navigation';
-import { ReactElement, useRef, useState } from 'react';
+import { ReactElement, useEffect, useRef, useState } from 'react';
 import { FiDownload, FiGithub, FiPlus, FiRefreshCw } from 'react-icons/fi';
 
+import CSVModal from '@/shared/components/csv-modal';
 import { Label } from '@/types/label';
 import { generateRandomColor } from '@/utils/color';
 
@@ -38,6 +40,13 @@ const LabelTypePage = (): ReactElement => {
     const [labels, setLabels] = useState<Label[]>(() => [
         ...(DEFAULT_LABELS[type] || []),
     ]);
+    const [showCSVModal, setShowCSVModal] = useState(false);
+
+    useEffect(() => {
+        if (type === 'csv') {
+            setShowCSVModal(true);
+        }
+    }, [type]);
 
     const handleAddNewRow = () => {
         setLabels((prev) => [
@@ -54,9 +63,15 @@ const LabelTypePage = (): ReactElement => {
         );
     };
 
+    const handleImportCSV = (importedLabels: Label[]) => {
+        setLabels(importedLabels);
+    };
+
     const handleExportCSV = () => {
+        const header = 'name,description,color\n';
         const csvContent =
             'data:text/csv;charset=utf-8,' +
+            header +
             labels
                 .map(
                     (label) =>
@@ -73,7 +88,11 @@ const LabelTypePage = (): ReactElement => {
     };
 
     return (
-        <div className="mx-auto mt-10 w-11/12 max-w-5xl">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mx-auto mt-10 w-11/12 max-w-5xl"
+        >
             <h1 className="mb-8 text-2xl font-semibold text-gray-900">
                 {type === 'emoji' && '이모지 라벨 시작하기'}
                 {type === 'text' && '텍스트 라벨 시작하기'}
@@ -178,24 +197,44 @@ const LabelTypePage = (): ReactElement => {
                 ))}
             </div>
 
-            <div className="mt-6 flex gap-3">
-                <button
+            {type === 'csv' && showCSVModal && (
+                <CSVModal
+                    onClose={() => setShowCSVModal(false)}
+                    onImport={handleImportCSV}
+                />
+            )}
+
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="mt-6 flex gap-3"
+            >
+                <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={handleAddNewRow}
                     className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
                     <FiPlus /> 새 라벨
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={handleExportCSV}
-                    className="flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                    className="flex items-center gap-2 rounded-md bg-neutral-800 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700"
                 >
                     <FiDownload /> CSV로 추출
-                </button>
-                <button className="flex items-center gap-2 rounded-md bg-gray-800 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700">
+                </motion.button>
+                <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center gap-2 rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
+                >
                     <FiGithub /> GitHub에 추가
-                </button>
-            </div>
-        </div>
+                </motion.button>
+            </motion.div>
+        </motion.div>
     );
 };
 

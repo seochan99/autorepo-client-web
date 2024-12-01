@@ -1,88 +1,88 @@
 'use client';
 
 import { Tab } from '@headlessui/react';
-import { ReactElement, useState } from 'react';
+import { templateService } from '@shared/api/services/template';
+import { motion } from 'framer-motion';
+import { ReactElement, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 
+interface Template {
+    templateId: number;
+    title: string;
+    content: string;
+}
+
 const TemplateIssuePage = (): ReactElement => {
     const [selectedTab, setSelectedTab] = useState('issue');
     const [selectedTemplate, setSelectedTemplate] = useState(0);
+    const [issueTemplates, setIssueTemplates] = useState<Template[]>([]);
+    const [prTemplates, setPrTemplates] = useState<Template[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const [issueTemplates, setIssueTemplates] = useState([
-        {
-            name: '버그 리포트',
-            content: `# 🐛 버그 리포트
+    useEffect(() => {
+        const fetchTemplates = async () => {
+            try {
+                const repoUrl =
+                    new URLSearchParams(window.location.search).get(
+                        'repoUrl',
+                    ) || '';
 
-버그에 대한 명확하고 간결한 설명을 작성해주세요.
+                // ISSUE 템플릿 가져오기
+                const response = await templateService.getTemplates(
+                    'ISSUE',
+                    repoUrl,
+                );
+                setIssueTemplates(
+                    response.data.data.map((item) => ({
+                        templateId: item.templateId,
+                        title: item.title,
+                        content: item.content,
+                    })),
+                );
 
-## 재현 방법
+                // PR 템플릿 가져오기
+                const prResponse = await templateService.getTemplates(
+                    'PR',
+                    repoUrl,
+                );
+                setPrTemplates(
+                    prResponse.data.data.map((item) => ({
+                        templateId: item.templateId,
+                        title: item.title,
+                        content: item.content,
+                    })),
+                );
+            } catch (error) {
+                console.error('Failed to fetch templates:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-버그를 재현하는 단계:
+        fetchTemplates();
+    }, []);
 
-1. '...'\`을(를) 클릭합니다.
-2. '...'\`로 스크롤합니다.
-3. '...'\` 버튼을 클릭합니다.
-4. 오류를 확인합니다.
+    const handleUpload = async () => {
+        try {
+            const repoUrl =
+                new URLSearchParams(window.location.search).get('repoUrl') ||
+                '';
+            const currentTemplate = templates[selectedTemplate];
 
-## 예상되는 동작
+            await templateService.uploadTemplate({
+                repoUrl,
+                type: selectedTab.toUpperCase(),
+                content: currentTemplate.content,
+            });
 
-예상했던 동작에 대한 설명을 작성해주세요.
-
-## 스크린샷
-
-해당되는 경우 스크린샷을 추가하여 문제를 설명해주세요.
-
-## 환경 정보
-
-- OS: [e.g. Windows 10]
-- 브라우저: [e.g. Chrome 86]
-- 버전: [e.g. 1.0.0]
-`,
-        },
-        {
-            name: '기능 요청',
-            content: `# ✨ 기능 요청
-
-원하는 기능에 대한 명확하고 간결한 설명을 작성해주세요.
-
-## 배경
-
-이 기능이 왜 필요한지, 어떤 문제를 해결하는지에 대한 배경을 설명해주세요.
-
-## 제안된 해결 방법
-
-생각하고 계신 해결 방법이나 접근 방식을 설명해주세요.
-
-## 고려된 대안
-
-다른 대안이나 아이디어가 있다면 공유해주세요.
-`,
-        },
-    ]);
-
-    const [prTemplates, setPrTemplates] = useState([
-        {
-            name: '풀 리퀘스트 템플릿',
-            content: `# 🔀 Pull Request
-
-## 설명
-
-변경 사항에 대한 자세한 설명을 작성해주세요.
-
-## 체크리스트
-
-- [ ] 코드가 정상적으로 동작합니다.
-- [ ] 모든 테스트를 통과했습니다.
-- [ ] 문서를 작성하거나 업데이트했습니다.
-
-## 기타
-
-추가적인 정보나 스크린샷이 있다면 추가해주세요.
-`,
-        },
-    ]);
+            alert('템플릿이 성공적으로 업로드되었습니다!');
+        } catch (error) {
+            console.error('Upload failed:', error);
+            alert('업로드 중 오류가 발생했습니다.');
+        }
+    };
 
     const templates = selectedTab === 'issue' ? issueTemplates : prTemplates;
 
@@ -105,20 +105,32 @@ const TemplateIssuePage = (): ReactElement => {
     };
 
     return (
-        <div className="flex h-screen">
+        <motion.div
+            initial="initial"
+            animate="animate"
+            className="flex min-h-screen bg-gray-50"
+        >
             {/* 좌측 사이드바 */}
-            <div className="w-1/4 border-r border-gray-200 p-4">
+            <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+                className="w-1/4 border-r border-gray-200 bg-white p-6 shadow-sm"
+            >
+                <h2 className="mb-6 text-xl font-semibold text-gray-800">
+                    템플릿 선택
+                </h2>
                 <Tab.Group
                     selectedIndex={selectedTab === 'issue' ? 0 : 1}
                     onChange={handleTabChange}
                 >
-                    <Tab.List className="flex space-x-1 rounded-xl bg-gray-200 p-1">
+                    <Tab.List className="flex space-x-1 rounded-xl bg-gray-100 p-1">
                         <Tab
                             className={({ selected }) =>
-                                `w-1/2 rounded-lg py-2.5 text-sm font-medium leading-5 ${
+                                `w-1/2 rounded-lg py-2.5 text-sm font-medium leading-5 transition-all duration-200 ${
                                     selected
-                                        ? 'bg-white shadow'
-                                        : 'text-gray-500 hover:bg-white/[0.12]'
+                                        ? 'bg-white text-neutral-900 shadow'
+                                        : 'text-gray-600 hover:bg-white/[0.12] hover:text-gray-800'
                                 }`
                             }
                         >
@@ -126,73 +138,142 @@ const TemplateIssuePage = (): ReactElement => {
                         </Tab>
                         <Tab
                             className={({ selected }) =>
-                                `w-1/2 rounded-lg py-2.5 text-sm font-medium leading-5 ${
+                                `w-1/2 rounded-lg py-2.5 text-sm font-medium leading-5 transition-all duration-200 ${
                                     selected
-                                        ? 'bg-white shadow'
-                                        : 'text-gray-500 hover:bg-white/[0.12]'
+                                        ? 'bg-white text-neutral-900 shadow'
+                                        : 'text-gray-600 hover:bg-white/[0.12] hover:text-gray-800'
                                 }`
                             }
                         >
                             PR 템플릿
                         </Tab>
                     </Tab.List>
-                    <Tab.Panels className="mt-2">
+                    <Tab.Panels className="mt-4">
                         <Tab.Panel className="space-y-2">
                             {issueTemplates.map((template, index) => (
-                                <button
+                                <motion.button
                                     key={index}
+                                    whileHover={{ scale: 1.02 }}
                                     onClick={() => setSelectedTemplate(index)}
-                                    className={`w-full rounded-md p-2 text-left ${
+                                    className={`w-full rounded-lg p-3 text-left transition-all duration-200 ${
                                         selectedTemplate === index
-                                            ? 'bg-blue-500 text-white'
-                                            : 'bg-gray-100 hover:bg-gray-200'
+                                            ? 'bg-neutral-900 text-white shadow-md'
+                                            : 'bg-white hover:bg-gray-50'
                                     }`}
                                 >
-                                    {template.name}
-                                </button>
+                                    <span className="block font-medium">
+                                        {template.title}
+                                    </span>
+                                </motion.button>
                             ))}
                         </Tab.Panel>
                         <Tab.Panel className="space-y-2">
                             {prTemplates.map((template, index) => (
-                                <button
+                                <motion.button
                                     key={index}
+                                    whileHover={{ scale: 1.02 }}
                                     onClick={() => setSelectedTemplate(index)}
-                                    className={`w-full rounded-md p-2 text-left ${
+                                    className={`w-full rounded-lg p-3 text-left transition-all duration-200 ${
                                         selectedTemplate === index
-                                            ? 'bg-blue-500 text-white'
-                                            : 'bg-gray-100 hover:bg-gray-200'
+                                            ? 'bg-neutral-900 text-white shadow-md'
+                                            : 'bg-white hover:bg-gray-50'
                                     }`}
                                 >
-                                    {template.name}
-                                </button>
+                                    <span className="block font-medium">
+                                        {template.title}
+                                    </span>
+                                </motion.button>
                             ))}
                         </Tab.Panel>
                     </Tab.Panels>
                 </Tab.Group>
-            </div>
+            </motion.div>
+
             {/* 우측 본문 */}
-            <div className="w-3/4 p-6">
-                <h1 className="mb-4 text-2xl font-bold">
-                    템플릿을 더 빠르고 쉽게 생성해보세요
-                </h1>
-                <p className="mb-6 text-gray-600">
-                    템플릿 생성부터 깃허브 업로드까지 한 번에 해결!
-                </p>
-                <div className="mb-6 rounded-md border bg-gray-50 p-4">
-                    <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        rehypePlugins={[rehypeRaw]}
+            <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+                className="flex w-3/4 flex-col p-8"
+            >
+                <div className="mb-8 flex items-center justify-between">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                        className="flex-1"
                     >
-                        {templates[selectedTemplate]?.content}
-                    </ReactMarkdown>
+                        <h1 className="mb-4 text-3xl font-bold text-neutral-900">
+                            템플릿을 더 빠르고 쉽게 생성해보세요
+                        </h1>
+                        <p className="text-lg text-neutral-600">
+                            템플릿 생성부터 깃허브 업로드까지 한 번에 해결!
+                        </p>
+                    </motion.div>
+
+                    {/* 업로드 버튼 */}
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleUpload}
+                        className="flex items-center gap-2 rounded-lg bg-neutral-900 px-6 py-3 font-medium text-white transition-colors hover:bg-neutral-800"
+                    >
+                        <svg
+                            className="size-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                            />
+                        </svg>
+                        GitHub에 업로드
+                    </motion.button>
                 </div>
-                <textarea
-                    className="h-64 w-full rounded-md border border-gray-300 p-2"
-                    value={templates[selectedTemplate]?.content}
-                    onChange={(e) => updateTemplateContent(e.target.value)}
-                ></textarea>
-            </div>
-        </div>
+
+                {isLoading ? (
+                    <div className="flex h-[calc(100vh-300px)] items-center justify-center">
+                        <div className="size-32 animate-spin rounded-full border-y-2 border-neutral-900"></div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 gap-6">
+                        {/* 에디터 */}
+                        <div className="rounded-lg bg-white p-4 shadow-sm">
+                            <h2 className="mb-4 text-lg font-semibold text-neutral-800">
+                                편집
+                            </h2>
+                            <textarea
+                                className="h-[calc(100vh-300px)] w-full rounded-lg border border-gray-200 p-4 font-mono text-sm focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500"
+                                value={templates[selectedTemplate]?.content}
+                                onChange={(e) =>
+                                    updateTemplateContent(e.target.value)
+                                }
+                            />
+                        </div>
+
+                        {/* 프리뷰 */}
+                        <div className="rounded-lg bg-white p-4 shadow-sm">
+                            <h2 className="mb-4 text-lg font-semibold text-neutral-800">
+                                미리보기
+                            </h2>
+                            <div className="prose prose-sm h-[calc(100vh-300px)] max-w-none overflow-y-auto rounded-lg bg-gray-50 p-4">
+                                <ReactMarkdown
+                                    remarkPlugins={[remarkGfm]}
+                                    rehypePlugins={[rehypeRaw]}
+                                    className="markdown-preview"
+                                >
+                                    {templates[selectedTemplate]?.content}
+                                </ReactMarkdown>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </motion.div>
+        </motion.div>
     );
 };
 

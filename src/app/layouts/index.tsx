@@ -1,6 +1,5 @@
 import '../styles';
 
-import Footer from '@widgets/layouts/footer/footer';
 import Navbar from '@widgets/layouts/navbar/navbar';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';

@@ -4,6 +4,8 @@
 /.pnp
 .pnp.js
 .package-lock.json
+
+*.package-lock.json
 /.package-lock.json
 ./package-lock.json
 # testing
@@ -12,7 +14,8 @@
 # next.js
 /.next/
 /out/
-
+.env
+*.env
 # production
 /build
 

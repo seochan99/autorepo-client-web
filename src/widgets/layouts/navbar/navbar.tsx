@@ -1,8 +1,13 @@
 'use client';
 
+import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
-import { IconHamburger, IconXRounded, AutoRepoNavLogo } from 'public/svgs';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { AutoRepoNavLogo, IconHamburger, IconXRounded } from 'public/svgs';
+import { useEffect, useState } from 'react';
+
+import { authService } from '@/shared/api/services/auth';
+import { useAuthStore } from '@/store/auth.store';
 
 import NavButton from './components/nav-button';
 
@@ -14,27 +19,42 @@ interface NavItem {
 }
 
 const Navbar = () => {
+    const router = useRouter();
     const [isSideBarOpen, setIsSideBarOpen] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const { isLoggedIn, setIsLoggedIn, initializeAuth } = useAuthStore();
+
+    useEffect(() => {
+        initializeAuth();
+    }, [initializeAuth]);
 
     const onSideBarClick = () => {
         setIsSideBarOpen(!isSideBarOpen);
     };
 
+    const handleLogoutClick = () => {
+        setShowLogoutModal(true);
+    };
+
+    const handleLogoutConfirm = () => {
+        authService.logout();
+        setIsLoggedIn(false);
+        setShowLogoutModal(false);
+        router.push('/');
+    };
+
     const NavLeftList: NavItem[] = [
-        { label: 'Label 생성', link: '/label' },
-        {
-            label: '템플릿 생성',
-            subItems: [
-                { label: 'Issue', link: '/template-issue' },
-                { label: 'PR', link: '/template-pr' },
-            ],
-        },
-        { label: 'ReadMe 생성', link: '/read-me' },
+        { label: 'Dashboard', link: '/template-dashboard' },
+        { label: 'Label 생성', link: '/select-repo/label' },
+        { label: '템플릿 생성', link: '/select-repo/template-issue' },
+        { label: 'ReadMe 생성', link: '/select-repo/read-me' },
     ];
 
     const NavRightList: NavItem[] = [
         { label: 'AutoRepo?', link: '/intro' },
-        { label: 'Github 로그인', link: '/login' },
+        isLoggedIn
+            ? { label: '로그아웃', onClick: handleLogoutClick }
+            : { label: 'Github 로그인', link: '/login' },
     ];
 
     return (
@@ -45,17 +65,18 @@ const Navbar = () => {
                     <AutoRepoNavLogo />
                 </Link>
 
-                {/* --------------------------------------------- */}
-                {/* ------------  Desktop Navigation ------------ */}
-                {/* --------------------------------------------- */}
+                {/* Desktop Navigation */}
                 <div className="hidden w-full items-center justify-between desktop:flex">
                     <div className="flex gap-2">
                         {NavLeftList.map((item, index) => (
                             <NavButton
                                 key={index}
                                 label={item.label}
-                                link={item.link}
-                                subItems={item.subItems} // subItems 전달
+                                link={isLoggedIn ? item.link : undefined}
+                                onClick={item.onClick}
+                                subItems={item.subItems}
+                                requiresAuth
+                                isLoggedIn={isLoggedIn}
                             />
                         ))}
                     </div>
@@ -65,15 +86,14 @@ const Navbar = () => {
                                 key={index}
                                 label={item.label}
                                 link={item.link}
-                                subItems={item.subItems} // 필요한 경우 subItems 전달
+                                onClick={item.onClick}
+                                subItems={item.subItems}
                             />
                         ))}
                     </div>
                 </div>
 
-                {/* --------------------------------------------- */}
-                {/* ------------  Mobile Toggle Icon ------------ */}
-                {/* --------------------------------------------- */}
+                {/* Mobile Toggle Icon */}
                 <div className="desktop:hidden">
                     {isSideBarOpen ? (
                         <IconXRounded
@@ -89,9 +109,7 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* --------------------------------------------- */}
-            {/* ------------  Sidebar for Mobile ------------ */}
-            {/* --------------------------------------------- */}
+            {/* Sidebar for Mobile */}
             {isSideBarOpen && (
                 <div className="fixed left-0 top-0 z-40 flex size-full flex-col bg-white p-8 desktop:hidden">
                     <div className="mb-8 flex items-center justify-between">
@@ -112,9 +130,11 @@ const Navbar = () => {
                             <NavButton
                                 key={index}
                                 label={item.label}
-                                link={item.link}
-                                subItems={item.subItems} // subItems 전달
-                                onClick={onSideBarClick}
+                                link={isLoggedIn ? item.link : undefined}
+                                onClick={item.onClick}
+                                subItems={item.subItems}
+                                requiresAuth
+                                isLoggedIn={isLoggedIn}
                             />
                         ))}
                         {NavRightList.map((item, index) => (
@@ -122,13 +142,57 @@ const Navbar = () => {
                                 key={index}
                                 label={item.label}
                                 link={item.link}
-                                subItems={item.subItems} // 필요한 경우 subItems 전달
-                                onClick={onSideBarClick}
+                                onClick={item.onClick}
+                                subItems={item.subItems}
                             />
                         ))}
                     </div>
                 </div>
             )}
+
+            {/* 로그아웃 확인 모달 */}
+            <AnimatePresence>
+                {showLogoutModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+                        >
+                            <h2 className="mb-4 text-xl font-semibold text-neutral-900">
+                                로그아웃
+                            </h2>
+                            <p className="mb-6 text-neutral-600">
+                                정말 로그아웃 하시겠습니까?
+                            </p>
+                            <div className="flex justify-end gap-3">
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => setShowLogoutModal(false)}
+                                    className="rounded-lg border border-gray-300 px-4 py-2 text-neutral-700 hover:bg-gray-50"
+                                >
+                                    취소
+                                </motion.button>
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={handleLogoutConfirm}
+                                    className="rounded-lg bg-neutral-900 px-4 py-2 text-white hover:bg-neutral-800"
+                                >
+                                    확인
+                                </motion.button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </>
     );
 };

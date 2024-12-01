@@ -1,3 +1,4 @@
+import typography from '@tailwindcss/typography';
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
@@ -14,11 +15,14 @@ const config: Config = {
                 'screen-lvh': '100lvh',
                 'screen-vh': '100vh',
             },
-
             screens: {
                 desktop: '961px',
                 tablet: '521px',
                 mobile: '320px',
+                xxl: '1440px',
+                xl: '992px',
+                md: '540px',
+                sm: '375px',
             },
             colors: {
                 primary: {
@@ -33,6 +37,7 @@ const config: Config = {
                     900: '#151F56',
                 },
                 secondary: {
+                    50: '#EFF2FB',
                     100: '#E3E7F6',
                     200: '#CFD7F1',
                     300: '#B5BFE0',
@@ -93,8 +98,8 @@ const config: Config = {
             },
             keyframes: {
                 slideRight: {
-                    from: { transform: 'translateX(0)' },
-                    to: { transform: 'translateX(320%)' },
+                    '0%': { transform: 'translateX(0)' },
+                    '100%': { transform: 'translateX(-50%)' },
                 },
                 maskSlideRight: {
                     from: { transform: 'translateX(0)' },
@@ -112,14 +117,9 @@ const config: Config = {
                     from: { transform: 'translateX(0)' },
                     to: { transform: 'translateX(-60%)' },
                 },
-                scroll: {
-                    '0%': { transform: 'translateX(0)' },
-                    '100%': { transform: 'translateX(-50%)' },
-                },
             },
             animation: {
-                scroll: 'scroll 30s linear infinite',
-                slideRight: 'slideRight 1s forwards',
+                slideRight: 'slideRight 40s linear infinite',
                 maskSlideRight: 'maskSlideRight 1s forwards',
                 fadeIn: 'fadeIn 1s forwards',
                 slideLeft: 'slideLeft 1s forwards',
@@ -127,7 +127,7 @@ const config: Config = {
             },
         },
     },
-    plugins: [],
+    plugins: [typography],
 };
 
 export default config;
