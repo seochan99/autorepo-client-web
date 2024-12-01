@@ -1,4 +1,4 @@
-import AutoRepoNavLogo from './autoRepo-nav-logo.svg';
+import AutoRepoNavLogo from './autorepo-nav-logo.svg';
 import IconGithub from './github.svg';
 import IconHamburger from './hamburger.svg';
 import HomeText from './home-text.svg';
