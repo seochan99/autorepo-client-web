@@ -65,7 +65,7 @@ const CustomMarkdown = (props: IMarkdownProps) => {
                     <ol className="my-2 ml-6 list-decimal">{children}</ol>
                 ),
                 li: ({ children }) => (
-                    <li className="my-1 text-body2">{children}</li>
+                    <li className="my-1 text-sub2">{children}</li>
                 ),
                 img: ({ src, alt }) => (
                     <img
