@@ -5,6 +5,10 @@ interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
     _retry?: boolean;
 }
 
+interface ErrorResponse {
+    message?: string;
+}
+
 export const instance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     timeout: 10000,
@@ -32,13 +36,30 @@ instance.interceptors.response.use(
         const originalRequest = error.config as CustomAxiosRequestConfig;
         if (!originalRequest) return Promise.reject(error);
 
-        // 401 에러이고 재시도하지 않은 요청인 경우
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        // 토큰 만료 에러 체크
+        let isTokenError =
+            error.response?.status === 401 ||
+            error.message?.includes('JWT expired') ||
+            error.message?.includes('Token validation failed') ||
+            error.message?.includes('difference of');
+
+        // 서버 에러(500) 체크 추가
+        if (error.response?.status === 500) {
+            // 문자열로 온 에러 메시지도 체크
+            if (
+                typeof error.response.data === 'string' &&
+                (error.response.data.includes('Token validation failed') ||
+                    error.response.data.includes('JWT expired'))
+            ) {
+                isTokenError = true;
+            }
+        }
+
+        if (isTokenError && !originalRequest._retry) {
             originalRequest._retry = true;
             try {
                 const refreshToken = localStorage.getItem('refreshToken');
 
-                // 토큰 재발급 요청
                 const response = await axios.post(
                     `${process.env.NEXT_PUBLIC_API_URL}/api/token/refresh`,
                     {},
@@ -53,17 +74,15 @@ instance.interceptors.response.use(
                 const { accessToken, refreshToken: newRefreshToken } =
                     response.data;
 
-                // 새 토큰 저장
                 localStorage.setItem('accessToken', accessToken);
                 localStorage.setItem('refreshToken', newRefreshToken);
 
-                // 원래 요청 재시도
                 if (originalRequest.headers) {
                     originalRequest.headers.Authorization = `Bearer ${accessToken}`;
                 }
+
                 return instance(originalRequest);
             } catch (refreshError) {
-                // 리프레시 토큰도 만료된 경우
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
                 window.location.href = '/login';
