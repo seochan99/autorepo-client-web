@@ -2,9 +2,7 @@
 const nextConfig = {
     reactStrictMode: true,
     images: {
-        domains: process.env.NEXT_PUBLIC_S3_BUCKET_URL
-            ? [process.env.NEXT_PUBLIC_S3_BUCKET_URL]
-            : [''],
+        domains: [process.env.NEXT_PUBLIC_S3_BUCKET_URL || '', 'url.kr'],
     },
     webpack(config) {
         const fileLoaderRule = config.module?.rules?.find((rule) => {
