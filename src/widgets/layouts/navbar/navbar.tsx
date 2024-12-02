@@ -2,11 +2,12 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { AutoRepoNavLogo, IconHamburger, IconXRounded } from 'public/svgs';
 import { useEffect, useState } from 'react';
 
 import { authService } from '@/shared/api/services/auth';
+import { ScrollToTop } from '@/shared/components/scroll-to-top';
 import { useAuthStore } from '@/store/auth.store';
 
 import NavButton from './components/nav-button';
@@ -20,6 +21,7 @@ interface NavItem {
 
 const Navbar = () => {
     const router = useRouter();
+    const pathname = usePathname();
     const [isSideBarOpen, setIsSideBarOpen] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const { isLoggedIn, setIsLoggedIn, initializeAuth } = useAuthStore();
@@ -43,6 +45,19 @@ const Navbar = () => {
         router.push('/');
     };
 
+    const isCurrentPath = (link: string) => {
+        const normalizedLink = link.replace('/select-repo/', '/');
+
+        if (pathname?.startsWith(normalizedLink)) return true;
+
+        if (pathname?.startsWith('/select-repo/')) {
+            const normalizedPath = pathname.replace('/select-repo/', '/');
+            return normalizedPath.startsWith(normalizedLink);
+        }
+
+        return pathname === link;
+    };
+
     const NavLeftList: NavItem[] = [
         { label: 'Dashboard', link: '/template-dashboard' },
         { label: 'Label 생성', link: '/select-repo/label' },
@@ -59,6 +74,7 @@ const Navbar = () => {
 
     return (
         <>
+            <ScrollToTop />
             <div className="fixed z-50 flex h-20 w-full items-center justify-between bg-white px-8 py-5 shadow-md">
                 {/* Logo */}
                 <Link href="/" className="flex items-center pr-8">
@@ -77,6 +93,9 @@ const Navbar = () => {
                                 subItems={item.subItems}
                                 requiresAuth
                                 isLoggedIn={isLoggedIn}
+                                isActive={
+                                    item.link ? isCurrentPath(item.link) : false
+                                }
                             />
                         ))}
                     </div>
@@ -135,6 +154,9 @@ const Navbar = () => {
                                 subItems={item.subItems}
                                 requiresAuth
                                 isLoggedIn={isLoggedIn}
+                                isActive={
+                                    item.link ? isCurrentPath(item.link) : false
+                                }
                             />
                         ))}
                         {NavRightList.map((item, index) => (

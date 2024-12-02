@@ -13,9 +13,8 @@ interface NavButtonProps extends NavItem {
     className?: string;
     requiresAuth?: boolean;
     isLoggedIn?: boolean;
+    isActive?: boolean;
 }
-
-const selectStyle = 'text-neutral-900';
 
 const NavButton = ({
     label,
@@ -25,19 +24,10 @@ const NavButton = ({
     className,
     requiresAuth,
     isLoggedIn,
+    isActive,
 }: NavButtonProps) => {
     const pathname = usePathname();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-    let isActive = '';
-    if (link && pathname === link) {
-        isActive = selectStyle;
-    } else if (
-        subItems &&
-        subItems.some((subItem) => subItem.link === pathname)
-    ) {
-        isActive = selectStyle;
-    }
 
     const handleMouseEnter = () => setIsDropdownOpen(true);
     const handleMouseLeave = () => setIsDropdownOpen(false);
@@ -49,7 +39,9 @@ const NavButton = ({
             onMouseLeave={handleMouseLeave}
         >
             <Link
-                className={`cursor-pointer whitespace-nowrap rounded-md text-h2 text-neutral-500 ${isActive} px-5 py-3 transition duration-200 ease-in-out hover:bg-neutral-50 ${className || ''}`}
+                className={`cursor-pointer whitespace-nowrap rounded-md px-5 py-3 text-h2 transition duration-200 ease-in-out hover:bg-neutral-50 
+                    ${isActive ? 'bg-neutral-100 text-h2 text-neutral-900' : 'text-neutral-500'} 
+                    ${className || ''}`}
                 href={link || '#'}
                 onClick={onClick}
             >
@@ -65,14 +57,14 @@ const NavButton = ({
             {subItems && isDropdownOpen && (
                 <div className="absolute left-0 top-full mt-2 w-40 rounded-md bg-white shadow-lg">
                     {subItems.map((subItem, index) => {
-                        const subItemIsActive =
-                            subItem.link === pathname ? selectStyle : '';
+                        const isSubItemActive = subItem.link === pathname;
                         return (
                             <Link
                                 key={index}
                                 href={subItem.link || '#'}
                                 onClick={subItem.onClick}
-                                className={`block px-4 py-2 text-sub1 text-neutral-700 hover:bg-neutral-100 ${subItemIsActive}`}
+                                className={`block px-4 py-2 text-sub1 text-neutral-700 hover:bg-neutral-100 
+                                    ${isSubItemActive ? 'bg-neutral-100 font-medium text-neutral-900' : ''}`}
                             >
                                 {subItem.label}
                             </Link>
