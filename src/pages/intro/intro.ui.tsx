@@ -120,9 +120,9 @@ const IntroPage = (): ReactElement => {
                     className="mt-20 grid gap-6 sm:grid-cols-3"
                 >
                     {[
-                        { icon: '📘', title: '문서', link: '/docs' },
-                        { icon: '🛠️', title: '지원', link: '/support' },
-                        { icon: '📞', title: '연락하기', link: '/contact' },
+                        { icon: '📘', title: '이용 약관', link: '/terms' },
+                        { icon: '🛠️', title: '만든이', link: '/members' },
+                        { icon: '📞', title: '문의', link: '/contact' },
                     ].map((item, index) => (
                         <motion.a
                             key={index}
