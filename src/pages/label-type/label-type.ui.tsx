@@ -133,7 +133,7 @@ const LabelTypePage = (): ReactElement => {
             });
 
             router.push(
-                `/done?type=label&repoUrl=https://github.com/${selectedRepo}`,
+                `/done?type=label&action=upload&repoUrl=${selectedRepo}`,
             );
         } catch (error) {
             console.error('Upload failed:', error);
@@ -476,11 +476,13 @@ const LabelTypePage = (): ReactElement => {
                         className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
                     >
                         <div className="rounded-2xl bg-white p-8 text-center">
-                            <div className="mb-4 w-32">
-                                <Lottie
-                                    animationData={loadingAnimation}
-                                    loop={true}
-                                />
+                            <div className="mx-auto mb-4 flex justify-center">
+                                <div className="w-32">
+                                    <Lottie
+                                        animationData={loadingAnimation}
+                                        loop={true}
+                                    />
+                                </div>
                             </div>
                             <h3 className="text-lg font-medium text-neutral-900">
                                 라벨 업로드 중...
