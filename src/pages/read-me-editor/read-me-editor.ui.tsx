@@ -1,11 +1,16 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import Lottie from 'lottie-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ReactElement, useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
+
+import { readmeService } from '@/shared/api/services/readme';
+import { Toast } from '@/shared/components/toast/toast';
+import { Tooltip } from '@/shared/components/tooltip';
 
 import loadingAnimation from '../../../public/animations/loading.json';
 
@@ -56,70 +61,71 @@ npm run dev
 `;
 
 const ReadMeEditorPage = (): ReactElement => {
-    const [markdown, setMarkdown] = useState(DEFAULT_MARKDOWN);
-    const [isLoading, setIsLoading] = useState(true);
+    const [markdown, setMarkdown] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const router = useRouter();
     const searchParams = useSearchParams();
-    const repoUrl = searchParams?.get('repoUrl') ?? '';
+    const [toast, setToast] = useState<{
+        message: string;
+        type: 'success' | 'error';
+        isVisible: boolean;
+    }>({
+        message: '',
+        type: 'success',
+        isVisible: false,
+    });
+    const hasRepo = !!searchParams?.get('selectedRepo');
 
     useEffect(() => {
-        const fetchGeneratedMarkdown = async () => {
-            try {
-                const response = await fetch('/api/readme/generate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        formData: JSON.parse(
-                            searchParams?.get('formData') ?? '{}',
-                        ),
-                    }),
-                });
-
-                if (!response.ok) throw new Error('Failed to generate README');
-
-                const data = await response.json();
-                setMarkdown(data.markdown);
-            } catch (error) {
-                console.error('Error:', error);
-                // 에러 처리
-            } finally {
-                // 5초 후에 로딩 상태 해제
-                setTimeout(() => {
-                    setIsLoading(false);
-                }, 5000);
-            }
-        };
-
-        fetchGeneratedMarkdown();
+        const markdownContent = searchParams?.get('markdown');
+        if (markdownContent) {
+            setMarkdown(decodeURIComponent(markdownContent));
+        }
     }, [searchParams]);
 
     const handleUpload = async () => {
         setIsUploading(true);
         try {
-            const response = await fetch('/api/readme/upload', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    repoUrl,
-                    content: markdown,
-                }),
+            const selectedRepo = searchParams?.get('selectedRepo') || '';
+            await readmeService.uploadReadme({
+                repoUrl: `https://github.com/${selectedRepo}`,
+                content: markdown,
             });
 
-            if (!response.ok) throw new Error('Failed to upload README');
-
-            alert('README가 성공적으로 업로드되었습니다!');
-            router.push('/');
+            router.push(
+                `/done?type=readme&action=upload&repoUrl=${selectedRepo}`,
+            );
         } catch (error) {
             console.error('Error:', error);
             alert('업로드 중 오류가 발생했습니다.');
         } finally {
             setIsUploading(false);
         }
+    };
+
+    const handleDownload = () => {
+        const blob = new Blob([markdown], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'README.md';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    const showToast = (message: string, type: 'success' | 'error') => {
+        setToast({ message, type, isVisible: true });
+        setTimeout(() => {
+            setToast((prev) => ({ ...prev, isVisible: false }));
+        }, 3000);
+    };
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(markdown);
+        showToast('클립보드에 복사되었습니다!', 'success');
     };
 
     if (isLoading) {
@@ -144,13 +150,94 @@ const ReadMeEditorPage = (): ReactElement => {
                 <h1 className="text-4xl font-bold text-gray-900">
                     README 편집하기
                 </h1>
-                <button
-                    onClick={handleUpload}
-                    disabled={isUploading}
-                    className="rounded-lg bg-neutral-900 px-6 py-3 text-lg font-medium text-white transition-colors hover:bg-neutral-800 disabled:bg-gray-400"
-                >
-                    {isUploading ? '업로드 중...' : 'GitHub에 업로드'}
-                </button>
+                <div className="flex gap-3">
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleCopy}
+                        className="flex items-center gap-2 rounded-lg bg-neutral-700 px-6 py-3 text-lg font-medium text-white transition-colors hover:bg-neutral-600"
+                    >
+                        <svg
+                            className="size-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
+                            />
+                        </svg>
+                        복사하기
+                    </motion.button>
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleDownload}
+                        className="flex items-center gap-2 rounded-lg bg-neutral-800 px-6 py-3 text-lg font-medium text-white transition-colors hover:bg-neutral-700"
+                    >
+                        <svg
+                            className="size-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                            />
+                        </svg>
+                        다운로드
+                    </motion.button>
+                    <Tooltip
+                        content={
+                            hasRepo
+                                ? ''
+                                : '레포지토리를 선택해야 GitHub에 업로드할 수 있습니다'
+                        }
+                    >
+                        <motion.button
+                            whileHover={
+                                !isUploading && hasRepo
+                                    ? { scale: 1.02 }
+                                    : undefined
+                            }
+                            whileTap={
+                                !isUploading && hasRepo
+                                    ? { scale: 0.98 }
+                                    : undefined
+                            }
+                            onClick={hasRepo ? handleUpload : undefined}
+                            disabled={isUploading || !hasRepo}
+                            className={`flex items-center gap-2 rounded-lg px-6 py-3 text-lg font-medium text-white transition-colors ${
+                                hasRepo
+                                    ? 'bg-neutral-900 hover:bg-neutral-800'
+                                    : 'cursor-not-allowed bg-neutral-400'
+                            } disabled:bg-gray-400`}
+                        >
+                            <svg
+                                className={`size-5 ${
+                                    isUploading ? 'animate-spin' : ''
+                                }`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                                />
+                            </svg>
+                            {isUploading ? '업로드 중...' : 'GitHub에 업로드'}
+                        </motion.button>
+                    </Tooltip>
+                </div>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
@@ -181,6 +268,15 @@ const ReadMeEditorPage = (): ReactElement => {
                     </div>
                 </div>
             </div>
+
+            <Toast
+                message={toast.message}
+                type={toast.type}
+                isVisible={toast.isVisible}
+                onClose={() =>
+                    setToast((prev) => ({ ...prev, isVisible: false }))
+                }
+            />
         </div>
     );
 };
