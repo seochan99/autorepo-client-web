@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { ReactElement } from 'react';
+import { useRouter } from 'next/navigation';
 
 const fadeInUp = {
     initial: { opacity: 0, y: 20 },
@@ -43,6 +44,8 @@ const features = [
 ];
 
 const IntroPage = (): ReactElement => {
+    const router = useRouter();
+
     return (
         <motion.div
             initial="initial"
@@ -105,13 +108,6 @@ const IntroPage = (): ReactElement => {
                         레포지토리를 선택하세요. 자동으로 초기 README 파일을
                         생성해주며, 이후 자유롭게 커스터마이징할 수 있습니다.
                     </p>
-                    <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="mt-6 rounded-lg bg-white px-6 py-3 font-semibold text-neutral-900 shadow-lg transition-colors hover:bg-neutral-50"
-                    >
-                        지금 시작하기
-                    </motion.button>
                 </motion.section>
 
                 {/* 리소스 섹션 */}
