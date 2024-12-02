@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
+
 import ReadMeEditorPage from '@/pages/read-me-editor/read-me-editor.ui';
 
 export default function Page() {

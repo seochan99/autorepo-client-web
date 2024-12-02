@@ -1,8 +1,11 @@
 'use client';
 
-import { Suspense } from 'react';
+import React, { Suspense } from 'react';
+import dynamic from 'next/dynamic';
 
-import OAuthSuccessPage from '@/pages/oauth2/success/oauth-success.ui';
+const LabelPage = dynamic(() => import('@/pages/label/label.ui'), {
+    ssr: false,
+});
 
 export default function Page() {
     return (
@@ -13,7 +16,7 @@ export default function Page() {
                 </div>
             }
         >
-            <OAuthSuccessPage />
+            <LabelPage />
         </Suspense>
     );
 }
