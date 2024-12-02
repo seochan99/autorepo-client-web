@@ -8,11 +8,46 @@ import { Label } from '@/types/label';
 
 interface CSVModalProps {
     onClose: () => void;
-    onImport: (data: Label[]) => void;
+    onImport: (labels: Label[]) => void;
 }
 
 const CSVModal = ({ onClose, onImport }: CSVModalProps) => {
     const [error, setError] = useState('');
+    const [isDragging, setIsDragging] = useState(false);
+
+    const processCSVData = (text: string) => {
+        const lines = text.split('\n');
+        const labels: Label[] = [];
+
+        // 첫 번째 행(헤더) 제외하고 처리
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue; // 빈 줄 건너뛰기
+
+            const [name, description, color] = lines[i]
+                .split(',')
+                .map((item) => item.trim().replace(/^"|"$/g, '')); // 따옴표 제거
+
+            if (!name || !color) continue;
+
+            // 색상 코드 정리
+            const cleanedColor = color.replace(/^#/, ''); // 기존 # 제거
+            if (!/^[0-9A-Fa-f]{6}$/.test(cleanedColor)) continue; // 유효한 hex 코드인지 확인
+
+            labels.push({
+                name,
+                description: description || '',
+                color: `#${cleanedColor.toUpperCase()}`,
+            });
+        }
+
+        if (labels.length === 0) {
+            setError('유효한 데이터가 없습니다.');
+            return;
+        }
+
+        onImport(labels);
+        onClose();
+    };
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -49,12 +84,36 @@ const CSVModal = ({ onClose, onImport }: CSVModalProps) => {
         reader.readAsText(file);
     };
 
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = () => {
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+
+        const file = e.dataTransfer.files[0];
+        if (!file || !file.name.endsWith('.csv')) {
+            setError('CSV 파일만 업로드 가능합니다.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => processCSVData(e.target?.result as string);
+        reader.readAsText(file);
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         >
             <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
@@ -78,7 +137,16 @@ const CSVModal = ({ onClose, onImport }: CSVModalProps) => {
                     name,description,color
                 </p>
 
-                <div className="rounded-lg border-2 border-dashed border-gray-300 p-6 text-center">
+                <div
+                    className={`rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
+                        isDragging
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-300'
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                >
                     <input
                         type="file"
                         accept=".csv"
