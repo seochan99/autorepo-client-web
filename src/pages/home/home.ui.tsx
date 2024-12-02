@@ -151,13 +151,16 @@ const HomePage = (): ReactElement => {
                             ])
                             .flat()
                             .map((imageName, index) => (
-                                <div key={index} className="relative shrink-0">
+                                <div
+                                    key={index}
+                                    className="relative shrink-0 h-[300px] w-[450px]"
+                                >
                                     <Image
                                         src={`/images/${imageName}`}
                                         alt={`Template ${index + 1}`}
-                                        width={400}
-                                        height={300}
+                                        fill
                                         className="rounded-xl object-cover shadow-lg transition duration-300 hover:shadow-xl"
+                                        sizes="(max-width: 768px) 100vw, 450px"
                                     />
                                     <div className="absolute inset-0 rounded-xl border border-gray-200" />
                                 </div>

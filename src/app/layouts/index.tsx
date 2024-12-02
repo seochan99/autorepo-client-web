@@ -29,7 +29,7 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="ko">
             <body
-                className={`${pretendardRegular.variable} mx-auto flex w-full flex-col items-center bg-white text-center antialiased`}
+                className={`${pretendardRegular.variable} mx-auto flex w-full flex-col items-center bg-neutral-50 text-center antialiased`}
             >
                 <Navbar />
                 <div className="mx-auto mt-20 h-screen-vh w-full  mobile:h-screen-lvh">
