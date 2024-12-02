@@ -3,9 +3,12 @@
 import dynamic from 'next/dynamic';
 import React, { Suspense } from 'react';
 
-const LabelPage = dynamic(() => import('@/pages/label/label.ui'), {
-    ssr: false,
-});
+const TemplateIssuePage = dynamic(
+    () => import('@/pages/template-issue/template-issue.ui'),
+    {
+        ssr: false,
+    },
+);
 
 export default function Page() {
     return (
@@ -16,7 +19,7 @@ export default function Page() {
                 </div>
             }
         >
-            <LabelPage />
+            <TemplateIssuePage />
         </Suspense>
     );
 }
