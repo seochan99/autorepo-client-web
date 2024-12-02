@@ -3,13 +3,19 @@ import { axiosInstance } from '../axios-instance';
 interface GenerateReadmeRequest {
     title: string;
     description: string;
-    stack: string[];
-    teamMembers: string[];
+    stack: {
+        name: string;
+        color: string;
+        icon: string;
+    }[];
+    teamMembers: {
+        name: string;
+        position: string;
+    }[];
     installation: string;
 }
 
 interface GenerateReadmeResponse {
-    title: string;
     content: string;
     imageUrl: string;
 }

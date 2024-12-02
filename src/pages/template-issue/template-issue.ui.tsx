@@ -32,6 +32,55 @@ interface ApiError {
     };
 }
 
+interface IMarkdownProps {
+    content: string;
+}
+
+const CustomMarkdown = (props: IMarkdownProps) => {
+    return (
+        <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
+            className="text-start"
+            components={{
+                h1: ({ children }) => (
+                    <h1 className="my-4 text-h1 font-bold">{children}</h1>
+                ),
+                h2: ({ children }) => (
+                    <h2 className="my-4 text-h2 font-bold">{children}</h2>
+                ),
+                h3: ({ children }) => (
+                    <h3 className="my-3 text-h3 font-bold">{children}</h3>
+                ),
+                h4: ({ children }) => (
+                    <h4 className="my-3 text-h4 font-bold">{children}</h4>
+                ),
+                h5: ({ children }) => (
+                    <h5 className="my-2 text-h5 font-bold">{children}</h5>
+                ),
+                ul: ({ children }) => (
+                    <ul className="my-2 ml-6 list-disc">{children}</ul>
+                ),
+                ol: ({ children }) => (
+                    <ol className="my-2 ml-6 list-decimal">{children}</ol>
+                ),
+                li: ({ children }) => (
+                    <li className="my-1 text-body2">{children}</li>
+                ),
+                img: ({ src, alt }) => (
+                    <img
+                        src={src}
+                        alt={alt}
+                        className="my-4 h-auto w-full rounded-lg"
+                    />
+                ),
+            }}
+        >
+            {props.content}
+        </ReactMarkdown>
+    );
+};
+
 const TemplateIssuePage = (): ReactElement => {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -518,15 +567,14 @@ const TemplateIssuePage = (): ReactElement => {
                                 미리보기
                             </h2>
                             <div className="prose prose-sm h-[calc(100vh-300px)] max-w-none overflow-y-auto rounded-lg bg-gray-50 p-4">
-                                <ReactMarkdown
-                                    remarkPlugins={[remarkGfm]}
-                                    rehypePlugins={[rehypeRaw]}
-                                    className="markdown-preview"
-                                >
-                                    {isNewTemplate
-                                        ? newTemplate.content
-                                        : templates[selectedTemplate]?.content}
-                                </ReactMarkdown>
+                                <CustomMarkdown
+                                    content={
+                                        isNewTemplate
+                                            ? newTemplate.content
+                                            : templates[selectedTemplate]
+                                                  ?.content
+                                    }
+                                />
                             </div>
                         </div>
                     </div>
