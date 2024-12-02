@@ -7,6 +7,7 @@ interface NavItem {
     link?: string;
     onClick?: () => void;
     subItems?: NavItem[];
+    onClose?: () => void; // 추가
 }
 
 interface NavButtonProps extends NavItem {
@@ -14,6 +15,7 @@ interface NavButtonProps extends NavItem {
     requiresAuth?: boolean;
     isLoggedIn?: boolean;
     isActive?: boolean;
+    onClose?: () => void; // 추가
 }
 
 const NavButton = ({
@@ -25,12 +27,18 @@ const NavButton = ({
     requiresAuth,
     isLoggedIn,
     isActive,
+    onClose, // 추가
 }: NavButtonProps) => {
     const pathname = usePathname();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     const handleMouseEnter = () => setIsDropdownOpen(true);
     const handleMouseLeave = () => setIsDropdownOpen(false);
+
+    const handleClick = () => {
+        onClick?.();
+        onClose?.(); // 사이드바 닫기
+    };
 
     return (
         <div
@@ -43,7 +51,7 @@ const NavButton = ({
                     ${isActive ? 'bg-neutral-100 text-h2 text-neutral-900' : 'text-neutral-500'} 
                     ${className || ''}`}
                 href={link || '#'}
-                onClick={onClick}
+                onClick={handleClick} // onClick -> handleClick으로 변경
             >
                 {label}
                 {requiresAuth && !isLoggedIn && (

@@ -157,6 +157,7 @@ const Navbar = () => {
                                 isActive={
                                     item.link ? isCurrentPath(item.link) : false
                                 }
+                                onClose={() => setIsSideBarOpen(false)}
                             />
                         ))}
                         {NavRightList.map((item, index) => (
@@ -166,6 +167,7 @@ const Navbar = () => {
                                 link={item.link}
                                 onClick={item.onClick}
                                 subItems={item.subItems}
+                                onClose={() => setIsSideBarOpen(false)}
                             />
                         ))}
                     </div>
