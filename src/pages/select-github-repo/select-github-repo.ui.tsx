@@ -1,11 +1,16 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { ReactElement, useEffect, useState } from 'react';
 
 import { Repository } from '@/entities/repository/model/types';
 import { repositoryService } from '@/shared/api/services/repository';
+
+// Lottie 동적 import
+const Lottie = dynamic(() => import('lottie-react'), { ssr: false });
+import loadingAnimation from '../../../public/animations/github-animation.json';
 
 interface SelectGithubRepoPageProps {
     type: 'read-me' | 'template-issue' | 'label';
@@ -31,53 +36,59 @@ const SelectGithubRepoPage = ({
     const [repositories, setRepositories] = useState<Repository[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedRepo, setSelectedRepo] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
+
+    const fetchRepositories = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            if (!localStorage.getItem('accessToken')) {
+                router.push('/login');
+                return;
+            }
+
+            const response = await repositoryService.fetchRepositories();
+            if (response.data) {
+                setRepositories(response.data);
+            }
+            console.log('Fetched repositories:', response.data);
+        } catch (error: unknown) {
+            const apiError = error as ApiError;
+
+            if (apiError.message.includes('Network Error')) {
+                setError('네트워크 에러! 잠시 AutoRepoCat이 잠자러 갔어요..');
+            } else {
+                setError(
+                    '앗! AutoRepoCat이 레포지토리를 찾는 중에 문제가 생겼어요..',
+                );
+            }
+
+            if (apiError.response?.status === 401) {
+                router.push('/login');
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchRepositories = async () => {
-            try {
-                if (!localStorage.getItem('accessToken')) {
-                    router.push('/login');
-                    return;
-                }
-
-                const response = await repositoryService.fetchRepositories();
-                if (response.data?.data) {
-                    setRepositories(response.data.data);
-                }
-            } catch (error: unknown) {
-                const apiError = error as ApiError;
-                console.error('Failed to fetch repositories:', {
-                    message: apiError.message,
-                    response: apiError.response?.data,
-                    status: apiError.response?.status,
-                    headers: apiError.response?.headers,
-                });
-
-                if (
-                    apiError.response?.status === 401 ||
-                    apiError.message === 'No access token found'
-                ) {
-                    router.push('/login');
-                }
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
         fetchRepositories();
     }, [router]);
 
     const handleRepoSelect = (repoUrl: string) => {
-        const encodedUrl = encodeURIComponent(repoUrl);
+        setSelectedRepo(repoUrl);
+        const repoPath = repoUrl.replace('https://github.com/', '');
+        const encodedUrl = encodeURIComponent(repoPath);
         switch (type) {
             case 'read-me':
-                router.push(`/read-me?repoUrl=${encodedUrl}`);
+                router.push(`/read-me?selectedRepo=${encodedUrl}`);
                 break;
             case 'template-issue':
-                router.push(`/template-issue?repoUrl=${encodedUrl}`);
+                router.push(`/template-issue?selectedRepo=${encodedUrl}`);
                 break;
             case 'label':
-                router.push(`/label?repoUrl=${encodedUrl}`);
+                router.push(`/label?selectedRepo=${encodedUrl}`);
                 break;
         }
     };
@@ -113,13 +124,13 @@ const SelectGithubRepoPage = ({
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-white p-8">
-            <div className="mx-auto max-w-4xl">
+            <div className="mx-auto mt-10 max-w-5xl">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mb-8 text-center"
+                    className="mb-12 text-center"
                 >
-                    <h1 className="mb-4 text-3xl font-bold text-neutral-900">
+                    <h1 className="mb-4 bg-gradient-to-r from-neutral-900 to-neutral-600 bg-clip-text text-4xl font-bold text-transparent">
                         {getTitle()}
                     </h1>
                     <p className="text-lg text-neutral-600">
@@ -128,66 +139,172 @@ const SelectGithubRepoPage = ({
                     </p>
                 </motion.div>
 
-                {/* 레포 없이 생성하기 버튼 */}
-                <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleCreateWithoutRepo}
-                    className="mb-8 w-full rounded-lg bg-neutral-900 p-4 text-center font-medium text-white transition-colors hover:bg-neutral-800"
-                >
-                    레포지토리 없이 생성하기
-                </motion.button>
-
-                {/* 검색 입력창 */}
-                <div className="mb-6">
-                    <input
-                        type="text"
-                        placeholder="레포지토리 검색..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full rounded-lg border border-gray-200 p-4 focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500"
-                    />
-                </div>
-
-                {/* 레포지토리 목록 */}
-                {isLoading ? (
-                    <div className="flex justify-center">
-                        <div className="size-32 animate-spin rounded-full border-y-2 border-neutral-900"></div>
-                    </div>
-                ) : (
-                    <div className="grid gap-4">
-                        {filteredRepos.map((repo) => (
-                            <motion.button
-                                key={repo.repoUrl}
-                                whileHover={{ scale: 1.02 }}
-                                onClick={() => handleRepoSelect(repo.repoUrl)}
-                                className="flex items-center justify-between rounded-lg bg-white p-6 text-left shadow-sm transition-all hover:shadow-md"
+                <div className="space-y-8 rounded-2xl bg-white p-8 shadow-lg">
+                    {/* 레포 없이 생성하기 버튼 */}
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleCreateWithoutRepo}
+                        className="group relative w-full overflow-hidden rounded-xl bg-neutral-900 p-4 text-center font-medium text-white transition-all hover:bg-neutral-800"
+                    >
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                            <svg
+                                className="size-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
                             >
-                                <div>
-                                    <h3 className="text-lg font-medium text-neutral-900">
-                                        {repo.repoName}
-                                    </h3>
-                                    <p className="text-sm text-neutral-500">
-                                        {repo.repoUrl}
-                                    </p>
-                                </div>
-                                <svg
-                                    className="size-6 text-neutral-400"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M9 5l7 7-7 7"
-                                    />
-                                </svg>
-                            </motion.button>
-                        ))}
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M12 4v16m8-8H4"
+                                />
+                            </svg>
+                            레포지토리 없이 생성하기
+                        </span>
+                    </motion.button>
+
+                    {/* 검색 및 새로고침 영역 */}
+                    <div className="flex items-center gap-4">
+                        <div className="relative flex-1">
+                            <svg
+                                className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-neutral-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                />
+                            </svg>
+                            <input
+                                type="text"
+                                placeholder="레포지토리 검색..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full rounded-xl border border-gray-200 py-4 pl-12 pr-4 focus:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500"
+                            />
+                        </div>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={fetchRepositories}
+                            disabled={isLoading}
+                            className="flex items-center gap-2 rounded-xl bg-neutral-900 px-6 py-4 font-medium text-white transition-all hover:bg-neutral-800 disabled:bg-neutral-400"
+                        >
+                            <svg
+                                className={`size-5 ${isLoading ? 'animate-spin' : ''}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                                />
+                            </svg>
+                            새로고침
+                        </motion.button>
                     </div>
-                )}
+
+                    {/* 레포지토리 목록 */}
+                    {error ? (
+                        <div className="flex flex-col items-center justify-center py-12">
+                            <div className="w-48">
+                                <Lottie
+                                    animationData={loadingAnimation}
+                                    loop={true}
+                                />
+                            </div>
+                            <div className="mt-4 text-center">
+                                <h3 className="mb-2 text-lg font-medium text-neutral-900">
+                                    <span className="mb-2 block">{error}</span>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={fetchRepositories}
+                                        className="text-base font-normal text-neutral-600 hover:text-neutral-900"
+                                    >
+                                        다시 시도해보실까요?
+                                    </motion.button>
+                                </h3>
+                            </div>
+                        </div>
+                    ) : isLoading ? (
+                        <div className="flex flex-col items-center justify-center py-12">
+                            <div className="w-48">
+                                <Lottie
+                                    animationData={loadingAnimation}
+                                    loop={true}
+                                />
+                            </div>
+                            <div className="mt-4 text-center">
+                                <h3 className="mb-2 text-lg font-medium text-neutral-900">
+                                    AutoRepoCat이 열심히 레포지토리를 찾고
+                                    있어요!
+                                </h3>
+                                <p className="text-neutral-500">
+                                    깃허브 숲에서 레포지토리를 수집하는 중...
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="grid gap-4">
+                            {filteredRepos.map((repo) => (
+                                <motion.button
+                                    key={repo.repoUrl}
+                                    whileHover={{ scale: 1.01 }}
+                                    onClick={() =>
+                                        handleRepoSelect(repo.repoUrl)
+                                    }
+                                    className={`group flex items-center justify-between rounded-xl p-6 text-left transition-all ${
+                                        selectedRepo === repo.repoUrl
+                                            ? 'bg-neutral-900 text-white shadow-lg'
+                                            : 'bg-neutral-50 hover:bg-neutral-100'
+                                    }`}
+                                >
+                                    <div>
+                                        <h3 className="text-lg font-medium">
+                                            {repo.repoName}
+                                        </h3>
+                                        <p
+                                            className={`text-sm ${
+                                                selectedRepo === repo.repoUrl
+                                                    ? 'text-neutral-300'
+                                                    : 'text-neutral-500'
+                                            }`}
+                                        >
+                                            {repo.repoUrl}
+                                        </p>
+                                    </div>
+                                    <svg
+                                        className={`size-6 transition-transform group-hover:translate-x-1 ${
+                                            selectedRepo === repo.repoUrl
+                                                ? 'text-white'
+                                                : 'text-neutral-400'
+                                        }`}
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M9 5l7 7-7 7"
+                                        />
+                                    </svg>
+                                </motion.button>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

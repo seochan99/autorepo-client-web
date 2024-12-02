@@ -2,13 +2,16 @@
 
 import { Tab } from '@headlessui/react';
 import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ReactElement, useEffect, useState } from 'react';
 
 import { Template } from '@/entities/template/model/types';
 import { templateService } from '@/shared/api/services/template';
-
+// Lottie 동적 import
+const Lottie = dynamic(() => import('lottie-react'), { ssr: false });
+import loadingAnimation from '../../../public/animations/github-animation.json';
 const TemplateCard = ({ template }: { template: Template }) => {
     const getTemplateLink = () => {
         return `/template-dashboard/${template.id}?type=${template.type}`;
@@ -72,15 +75,20 @@ const TemplateDashboardPage = (): ReactElement => {
     const [randomTemplates, setRandomTemplates] = useState<Template[]>([]);
     const [recentTemplates, setRecentTemplates] = useState<Template[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchTemplates = async () => {
+            setIsLoading(true);
+            setError(null);
             try {
                 const response = await templateService.getDashboard();
                 setRandomTemplates(response.data.data.randomTemplates);
                 setRecentTemplates(response.data.data.recentTemplates);
             } catch (error) {
-                console.error('Failed to fetch templates:', error);
+                setError(
+                    '앗! AutoRepoCat이 템플릿을 찾는 중에 문제가 생겼어요..',
+                );
             } finally {
                 setIsLoading(false);
             }
@@ -98,10 +106,33 @@ const TemplateDashboardPage = (): ReactElement => {
         );
     };
 
-    if (isLoading) {
+    if (isLoading || error) {
         return (
             <div className="flex min-h-screen items-center justify-center">
-                <div className="size-32 animate-spin rounded-full border-y-2 border-neutral-900"></div>
+                <div className="text-center">
+                    <div className="mx-auto mb-4 w-48">
+                        <Lottie animationData={loadingAnimation} loop={true} />
+                    </div>
+                    {error ? (
+                        <>
+                            <p className="mb-2 text-lg font-medium text-neutral-900">
+                                {error}
+                            </p>
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => window.location.reload()}
+                                className="text-base font-normal text-neutral-600 hover:text-neutral-900"
+                            >
+                                다시 시도해보실까요?
+                            </motion.button>
+                        </>
+                    ) : (
+                        <p className="text-lg font-medium text-neutral-900">
+                            AutoRepoCat이 템플릿을 찾아오고 있어요!
+                        </p>
+                    )}
+                </div>
             </div>
         );
     }
