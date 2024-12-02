@@ -2,7 +2,24 @@
 const nextConfig = {
     reactStrictMode: true,
     images: {
-        domains: [process.env.NEXT_PUBLIC_S3_BUCKET_URL || '', 'url.kr'],
+        dangerouslyAllowSVG: true,
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'img.shields.io',
+            },
+            {
+                protocol: 'https',
+                hostname: process.env.NEXT_PUBLIC_S3_BUCKET_URL || '',
+            },
+            {
+                protocol: 'https',
+                hostname: 'url.kr',
+            },
+        ],
+        contentDispositionType: 'attachment',
+        contentSecurityPolicy:
+            "default-src 'self'; script-src 'none'; sandbox;",
     },
     webpack(config) {
         const fileLoaderRule = config.module?.rules?.find((rule) => {
