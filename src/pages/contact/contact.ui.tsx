@@ -15,11 +15,22 @@ const ContactPage = (): ReactElement => {
         email: '',
         message: '',
     });
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // 여기에 폼 제출 로직 구현
-        console.log('Form submitted:', formData);
+        setIsLoading(true);
+
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
+        setIsLoading(false);
+        setIsSuccess(true);
+        setFormData({ name: '', email: '', message: '' });
+
+        setTimeout(() => {
+            setIsSuccess(false);
+        }, 3000);
     };
 
     return (
@@ -37,8 +48,17 @@ const ContactPage = (): ReactElement => {
                 </motion.h1>
                 <motion.div
                     variants={fadeInUp}
-                    className="rounded-xl bg-white p-8 shadow-lg"
+                    className="relative rounded-xl bg-white p-8 shadow-lg"
                 >
+                    {isSuccess && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mb-4 rounded-lg bg-green-100 p-4 text-green-700"
+                        >
+                            메시지가 성공적으로 전송되었습니다!
+                        </motion.div>
+                    )}
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
                             <label
@@ -107,9 +127,35 @@ const ContactPage = (): ReactElement => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             type="submit"
-                            className="w-full rounded-lg bg-neutral-900 px-6 py-3 font-semibold text-white shadow-lg transition-colors hover:bg-neutral-800"
+                            disabled={isLoading}
+                            className="w-full rounded-lg bg-neutral-900 px-6 py-3 font-semibold text-white shadow-lg transition-colors hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-70"
                         >
-                            보내기
+                            {isLoading ? (
+                                <span className="flex items-center justify-center">
+                                    <svg
+                                        className="mr-2 size-5 animate-spin"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <circle
+                                            className="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            strokeWidth="4"
+                                            fill="none"
+                                        />
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        />
+                                    </svg>
+                                    전송 중...
+                                </span>
+                            ) : (
+                                '보내기'
+                            )}
                         </motion.button>
                     </form>
                 </motion.div>

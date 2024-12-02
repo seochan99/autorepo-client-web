@@ -166,10 +166,15 @@ const ReadMePage = (): ReactElement => {
             const requestData = {
                 title: formData.title,
                 description: formData.description,
-                stack: formData.stack.map((s) => s.name),
-                teamMembers: formData.teamMembers.map(
-                    (m) => `${m.name}: ${m.role}`,
-                ),
+                stack: formData.stack.map((s) => ({
+                    name: s.name,
+                    color: s.color,
+                    icon: s.icon,
+                })),
+                teamMembers: formData.teamMembers.map((m) => ({
+                    name: m.name,
+                    position: m.role, // role을 position으로 매핑
+                })),
                 installation: formData.installation,
             };
 
