@@ -155,7 +155,6 @@ const TemplateIssuePage = (): ReactElement => {
                     })),
                 );
             } catch (error) {
-                console.error('Failed to fetch templates:', error);
             } finally {
                 setIsLoading(false);
             }
@@ -199,7 +198,7 @@ const TemplateIssuePage = (): ReactElement => {
             );
         } catch (error: unknown) {
             const err = error as ApiError;
-            console.error('Upload failed:', err);
+
             const errorMessage =
                 err.response?.data?.message || '업로드 중 오류가 발생했습니다.';
             showToast(errorMessage, 'error');
@@ -241,7 +240,6 @@ const TemplateIssuePage = (): ReactElement => {
                 `/done?type=template&action=share&repoUrl=${selectedRepo}`,
             );
         } catch (error) {
-            console.error('Share failed:', error);
             showToast('공유 중 오류가 발생했습니다.', 'error');
         } finally {
             setIsLoading(false);

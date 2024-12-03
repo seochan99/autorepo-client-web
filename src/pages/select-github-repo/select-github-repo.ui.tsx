@@ -54,7 +54,6 @@ const SelectGithubRepoPage = ({
             if (response.data) {
                 setRepositories(response.data);
             }
-            console.log('Fetched repositories:', response.data);
         } catch (error: unknown) {
             const apiError = error as ApiError;
 
