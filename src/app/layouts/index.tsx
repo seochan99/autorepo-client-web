@@ -3,6 +3,7 @@ import '../styles';
 import Navbar from '@widgets/layouts/navbar/navbar';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import Script from 'next/script';
 
 const pretendardRegular = localFont({
     src: '../../../public/fonts/Pretendard-Regular.woff',
@@ -28,6 +29,24 @@ export const metadata: Metadata = {
 export function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="ko">
+            <head>
+                <Script
+                    strategy="afterInteractive"
+                    src="https://www.googletagmanager.com/gtag/js?id=G-N5RY7XNQ6H"
+                />
+                <Script
+                    id="google-analytics"
+                    strategy="afterInteractive"
+                    dangerouslySetInnerHTML={{
+                        __html: `
+                            window.dataLayer = window.dataLayer || [];
+                            function gtag(){dataLayer.push(arguments);}
+                            gtag('js', new Date());
+                            gtag('config', 'G-N5RY7XNQ6H');
+                        `,
+                    }}
+                />
+            </head>
             <body
                 className={`${pretendardRegular.variable} mx-auto flex w-full flex-col items-center bg-neutral-50 text-center antialiased`}
             >

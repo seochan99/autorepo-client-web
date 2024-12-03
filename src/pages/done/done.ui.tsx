@@ -37,9 +37,9 @@ const DonePage = (): ReactElement => {
             case 'label':
                 return `${baseUrl}/labels`;
             case 'template':
-                return `${baseUrl}/issues/new/choose`;
+                return `${baseUrl}`;
             case 'readme':
-                return `${baseUrl}#readme`;
+                return `${baseUrl}`;
             default:
                 return baseUrl;
         }
