@@ -50,7 +50,7 @@ const DonePage = (): ReactElement => {
             case 'label':
                 return '라벨 확인하기';
             case 'template':
-                return '이슈/PR 생성하기';
+                return '이슈/PR 확인하기';
             case 'readme':
                 return 'README 확인하기';
             default:
