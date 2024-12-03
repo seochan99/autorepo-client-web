@@ -253,7 +253,7 @@ const DonePage = (): ReactElement => {
                         <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            onClick={() => router.push('/home')}
+                            onClick={() => router.push('/')}
                             className="group flex items-center gap-2 rounded-lg bg-neutral-800 px-6 py-3 text-base font-medium text-white transition-all hover:bg-neutral-700"
                         >
                             <svg
