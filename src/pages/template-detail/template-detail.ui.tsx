@@ -44,6 +44,18 @@ const TemplateDetailPage = (): ReactElement => {
         }
     }, [id, type]);
 
+    const handleDownload = () => {
+        const blob = new Blob([template.content], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${template.title}.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     if (isLoading) {
         return (
             <div className="flex min-h-screen items-center justify-center">
@@ -97,7 +109,7 @@ const TemplateDetailPage = (): ReactElement => {
                             </h2>
                             <div className="flex items-center gap-4">
                                 <button
-                                    onClick={() => window.print()}
+                                    onClick={handleDownload}
                                     className="flex items-center gap-2 rounded-lg bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-200"
                                 >
                                     <svg
@@ -110,10 +122,10 @@ const TemplateDetailPage = (): ReactElement => {
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
                                             strokeWidth={2}
-                                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                                         />
                                     </svg>
-                                    프린트
+                                    마크다운 다운로드
                                 </button>
                                 <button
                                     onClick={() => {
