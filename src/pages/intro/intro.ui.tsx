@@ -1,8 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ReactElement } from 'react';
 import { useRouter } from 'next/navigation';
+import { ReactElement } from 'react';
 
 const fadeInUp = {
     initial: { opacity: 0, y: 20 },
@@ -50,71 +50,150 @@ const IntroPage = (): ReactElement => {
         <motion.div
             initial="initial"
             animate="animate"
-            className="min-h-screen bg-gradient-to-b from-neutral-50 to-white py-16"
+            className="min-h-screen bg-gradient-to-b from-neutral-50 to-white"
         >
-            <motion.div
-                variants={staggerContainer}
-                className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8"
-            >
-                {/* 헤더 섹션 */}
-                <motion.div variants={fadeInUp} className="text-center">
-                    <motion.h1
-                        initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 0.5 }}
-                        className="bg-gradient-to-r from-neutral-800 to-neutral-900 bg-clip-text text-5xl font-bold text-transparent"
-                    >
-                        🚀 AutoRep
-                    </motion.h1>
-                    <motion.p
-                        variants={fadeInUp}
-                        className="mt-4 text-xl text-neutral-600"
-                    >
-                        프로젝트 문서화를 더 스마트하게
-                    </motion.p>
-                </motion.div>
-
-                {/* 기능 그리드 */}
+            {/* 히어로 섹션 */}
+            <div className="relative overflow-hidden py-20">
                 <motion.div
                     variants={staggerContainer}
-                    className="mt-20 grid gap-8 sm:grid-cols-2 lg:grid-cols-4"
+                    className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8"
                 >
+                    <motion.div variants={fadeInUp} className="text-center">
+                        <motion.div
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="mx-auto flex items-center justify-center gap-4"
+                        >
+                            <h1 className="bg-gradient-to-r from-neutral-800 to-neutral-900 bg-clip-text text-6xl font-bold text-transparent">
+                                AutoRep
+                            </h1>
+                        </motion.div>
+                        <motion.p
+                            variants={fadeInUp}
+                            className="mx-auto mt-6 max-w-2xl text-xl text-neutral-600"
+                        >
+                            <span className="block font-semibold text-neutral-900">
+                                GitHub 프로젝트 초기 설정을 자동화하세요
+                            </span>
+                            README, 이슈 템플릿, 라벨까지 한 번에 설정하고
+                            관리할 수 있습니다
+                        </motion.p>
+                        <motion.div
+                            variants={fadeInUp}
+                            className="mt-8 flex justify-center gap-4"
+                        >
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => router.push('/login')}
+                                className="rounded-lg bg-neutral-900 px-8 py-3 font-medium text-white hover:bg-neutral-800"
+                            >
+                                시작하기
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() =>
+                                    router.push('/template-dashboard')
+                                }
+                                className="rounded-lg border-2 border-neutral-200 px-8 py-3 font-medium text-neutral-700 hover:border-neutral-300"
+                            >
+                                템플릿 둘러보기
+                            </motion.button>
+                        </motion.div>
+                    </motion.div>
+                </motion.div>
+            </div>
+
+            {/* 기능 섹션 */}
+            <motion.div
+                variants={staggerContainer}
+                className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8"
+            >
+                <motion.h2
+                    variants={fadeInUp}
+                    className="mb-12 text-center text-3xl font-bold text-neutral-900"
+                >
+                    AutoRep으로 할 수 있는 것들
+                </motion.h2>
+                <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
                     {features.map((feature, index) => (
                         <motion.div
                             key={index}
                             variants={fadeInUp}
                             whileHover={{ scale: 1.05 }}
-                            className="rounded-xl bg-white p-6 shadow-lg transition-shadow hover:shadow-xl"
+                            className="rounded-xl bg-white p-8 text-center shadow-lg transition-all hover:shadow-xl"
                         >
-                            <div className="text-4xl">{feature.icon}</div>
-                            <h3 className="mt-4 text-xl font-semibold text-neutral-900">
+                            <div className="mx-auto mb-6 flex size-14 items-center justify-center rounded-full bg-neutral-100 text-3xl">
+                                {feature.icon}
+                            </div>
+                            <h3 className="mb-3 text-xl font-semibold text-neutral-900">
                                 {feature.title}
                             </h3>
-                            <p className="mt-2 text-neutral-600">
+                            <p className="text-neutral-600">
                                 {feature.description}
                             </p>
                         </motion.div>
                     ))}
-                </motion.div>
+                </div>
+            </motion.div>
 
-                {/* 시작하기 섹션 */}
-                <motion.section
-                    variants={fadeInUp}
-                    className="mt-20 rounded-2xl bg-neutral-900 p-8 text-white"
-                >
-                    <h2 className="text-3xl font-bold">시작하기</h2>
-                    <p className="mt-4 text-lg text-neutral-200">
-                        AutoRep을 사용하려면 GitHub 계정을 연결하고 원하는
-                        레포지토리를 선택하세요. 자동으로 초기 README 파일을
-                        생성해주며, 이후 자유롭게 커스터마이징할 수 있습니다.
-                    </p>
-                </motion.section>
+            {/* 사용 방법 섹션 */}
+            <motion.section
+                variants={fadeInUp}
+                className="bg-neutral-900 py-20 text-white"
+            >
+                <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+                    <h2 className="mb-12 text-center text-3xl font-bold">
+                        간단한 3단계로 시작하세요
+                    </h2>
+                    <div className="grid gap-8 sm:grid-cols-3">
+                        {[
+                            {
+                                step: '01',
+                                title: 'GitHub 연동',
+                                description:
+                                    'GitHub 계정을 연결하여 시작하세요',
+                            },
+                            {
+                                step: '02',
+                                title: '레포지토리 선택',
+                                description:
+                                    '설정하고 싶은 레포지토리를 선택하세요',
+                            },
+                            {
+                                step: '03',
+                                title: '자동 설정',
+                                description:
+                                    '필요한 설정을 자동으로 생성합니다',
+                            },
+                        ].map((step, index) => (
+                            <motion.div
+                                key={index}
+                                variants={fadeInUp}
+                                className="relative rounded-lg bg-neutral-800 p-6"
+                            >
+                                <div className="mb-4 text-4xl font-bold text-neutral-700">
+                                    {step.step}
+                                </div>
+                                <h3 className="mb-2 text-xl font-semibold">
+                                    {step.title}
+                                </h3>
+                                <p className="text-neutral-400">
+                                    {step.description}
+                                </p>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </motion.section>
 
-                {/* 리소스 섹션 */}
-                <motion.section
-                    variants={staggerContainer}
-                    className="mt-20 grid gap-6 sm:grid-cols-3"
-                >
+            {/* 리소스 섹션 */}
+            <motion.section
+                variants={staggerContainer}
+                className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8"
+            >
+                <div className="grid gap-6 sm:grid-cols-3">
                     {[
                         { icon: '📘', title: '이용 약관', link: '/terms' },
                         { icon: '🛠️', title: '만든이', link: '/members' },
@@ -125,27 +204,26 @@ const IntroPage = (): ReactElement => {
                             href={item.link}
                             variants={fadeInUp}
                             whileHover={{ scale: 1.05 }}
-                            className="flex items-center justify-center rounded-xl bg-white p-6 shadow-md transition-shadow hover:shadow-lg"
+                            className="flex items-center justify-center gap-3 rounded-xl bg-white p-6 shadow-md transition-all hover:shadow-lg"
                         >
-                            <span className="mr-3 text-2xl">{item.icon}</span>
+                            <span className="text-2xl">{item.icon}</span>
                             <span className="text-lg font-medium text-neutral-900">
                                 {item.title}
                             </span>
                         </motion.a>
                     ))}
-                </motion.section>
+                </div>
+            </motion.section>
 
-                {/* 푸터 */}
-                <motion.footer
-                    variants={fadeInUp}
-                    className="mt-20 text-center text-neutral-600"
-                >
-                    <p>
-                        &copy; {new Date().getFullYear()} AutoRep. 모든 권리
-                        보유.
-                    </p>
-                </motion.footer>
-            </motion.div>
+            {/* 푸터 */}
+            <motion.footer
+                variants={fadeInUp}
+                className="border-t border-neutral-200 py-8 text-center text-neutral-600"
+            >
+                <p>
+                    &copy; {new Date().getFullYear()} AutoRep. 모든 권리 보유.
+                </p>
+            </motion.footer>
         </motion.div>
     );
 };

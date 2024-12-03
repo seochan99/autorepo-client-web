@@ -27,17 +27,20 @@ const NavButton = ({
     requiresAuth,
     isLoggedIn,
     isActive,
-    onClose, // 추가
+    onClose,
 }: NavButtonProps) => {
     const pathname = usePathname();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    const isLoginActive = label === 'Github 로그인' && pathname === '/login';
+    const finalIsActive = isActive || isLoginActive;
 
     const handleMouseEnter = () => setIsDropdownOpen(true);
     const handleMouseLeave = () => setIsDropdownOpen(false);
 
     const handleClick = () => {
         onClick?.();
-        onClose?.(); // 사이드바 닫기
+        onClose?.();
     };
 
     return (
@@ -48,10 +51,10 @@ const NavButton = ({
         >
             <Link
                 className={`cursor-pointer whitespace-nowrap rounded-md px-5 py-3 text-h2 transition duration-200 ease-in-out hover:bg-neutral-50 
-                    ${isActive ? 'bg-neutral-100 text-h2 text-neutral-900' : 'text-neutral-500'} 
+                    ${finalIsActive ? 'bg-neutral-100 text-h2 text-neutral-900' : 'text-neutral-500'} 
                     ${className || ''}`}
                 href={link || '#'}
-                onClick={handleClick} // onClick -> handleClick으로 변경
+                onClick={handleClick}
             >
                 {label}
                 {requiresAuth && !isLoggedIn && (

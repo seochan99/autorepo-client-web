@@ -46,6 +46,10 @@ const Navbar = () => {
     };
 
     const isCurrentPath = (link: string) => {
+        if (link === '/intro' && pathname === '/intro') {
+            return true;
+        }
+
         const normalizedLink = link.replace('/select-repo/', '/');
 
         if (pathname?.startsWith(normalizedLink)) return true;
@@ -77,8 +81,9 @@ const Navbar = () => {
             <ScrollToTop />
             <div className="fixed z-50 flex h-20 w-full items-center justify-between bg-white px-8 py-5 shadow-md">
                 {/* Logo */}
-                <Link href="/" className="flex items-center pr-8">
+                <Link href="/" className="flex items-center gap-2 pr-8">
                     <AutoRepoNavLogo />
+                    <span className="text-2xl font-bold">AutoRepo</span>
                 </Link>
 
                 {/* Desktop Navigation */}
@@ -107,6 +112,9 @@ const Navbar = () => {
                                 link={item.link}
                                 onClick={item.onClick}
                                 subItems={item.subItems}
+                                isActive={
+                                    item.link ? isCurrentPath(item.link) : false
+                                }
                             />
                         ))}
                     </div>
@@ -167,6 +175,9 @@ const Navbar = () => {
                                 link={item.link}
                                 onClick={item.onClick}
                                 subItems={item.subItems}
+                                isActive={
+                                    item.link ? isCurrentPath(item.link) : false
+                                }
                                 onClose={() => setIsSideBarOpen(false)}
                             />
                         ))}

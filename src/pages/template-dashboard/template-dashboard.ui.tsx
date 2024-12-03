@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ReactElement, useEffect, useState } from 'react';
 
 import { Template } from '@/entities/template/model/types';
@@ -71,6 +72,7 @@ const TABS = [
 type TabType = (typeof TABS)[number]['key'];
 
 const TemplateDashboardPage = (): ReactElement => {
+    const router = useRouter();
     const [selectedTab, setSelectedTab] = useState<TabType>('recent');
     const [randomTemplates, setRandomTemplates] = useState<Template[]>([]);
     const [recentTemplates, setRecentTemplates] = useState<Template[]>([]);
@@ -78,6 +80,11 @@ const TemplateDashboardPage = (): ReactElement => {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        if (!localStorage.getItem('accessToken')) {
+            router.push('/login');
+            return;
+        }
+
         const fetchTemplates = async () => {
             setIsLoading(true);
             setError(null);
@@ -85,7 +92,7 @@ const TemplateDashboardPage = (): ReactElement => {
                 const response = await templateService.getDashboard();
                 setRandomTemplates(response.data.data.randomTemplates);
                 setRecentTemplates(response.data.data.recentTemplates);
-            } catch (error) {
+            } catch (_) {
                 setError(
                     '앗! AutoRepoCat이 템플릿을 찾는 중에 문제가 생겼어요..',
                 );
