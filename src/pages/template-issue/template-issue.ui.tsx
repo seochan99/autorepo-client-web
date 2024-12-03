@@ -194,7 +194,9 @@ const TemplateIssuePage = (): ReactElement => {
             });
 
             // 성공 시 Done 페이지로 이동
-            router.push('/done?type=template&action=upload');
+            router.push(
+                `/done?type=template&action=upload&repoUrl=${selectedRepo}`,
+            );
         } catch (error: unknown) {
             const err = error as ApiError;
             console.error('Upload failed:', err);
