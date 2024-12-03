@@ -271,8 +271,20 @@ const ReadMePage = (): ReactElement => {
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="mx-auto max-w-5xl px-6 py-12"
+                className="mx-auto mt-16 max-w-5xl rounded-lg bg-white px-6 py-12"
             >
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-12 text-center"
+                >
+                    <h1 className="mb-4 bg-gradient-to-r from-neutral-900 to-neutral-600 bg-clip-text text-4xl font-bold text-transparent">
+                        README 생성하기
+                    </h1>
+                    <p className="text-lg text-neutral-600">
+                        가능한 모든 정보를 입력하여 README를 생성해보세요!
+                    </p>
+                </motion.div>
                 <motion.form
                     initial={{ y: 20 }}
                     animate={{ y: 0 }}
@@ -283,7 +295,7 @@ const ReadMePage = (): ReactElement => {
                     {/* 프로젝트 제목 */}
                     <div>
                         <label
-                            className="mb-3 block text-lg font-medium text-gray-700"
+                            className="mb-3 block text-h2 font-medium text-gray-700"
                             htmlFor="title"
                         >
                             프로젝트 제목
@@ -305,7 +317,7 @@ const ReadMePage = (): ReactElement => {
 
                     {/* 프로젝트 설명 */}
                     <div>
-                        <label className="mb-3 block text-lg font-medium text-gray-700">
+                        <label className="mb-3 block text-h2 font-medium text-gray-700">
                             프로젝트 설명
                         </label>
                         <div className="rounded-lg border border-gray-200 bg-white">
@@ -388,7 +400,7 @@ const ReadMePage = (): ReactElement => {
 
                     {/* 기술 스택 */}
                     <div>
-                        <label className="mb-3 block text-lg font-medium text-gray-700">
+                        <label className="mb-3 block text-h2 font-medium text-gray-700">
                             기술 스택
                         </label>
                         <div className="mb-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
@@ -410,7 +422,7 @@ const ReadMePage = (): ReactElement => {
                             ))}
                         </div>
                         <div className="mb-4 rounded-lg border border-gray-200 p-4">
-                            <h3 className="mb-3 text-lg font-medium">
+                            <h3 className="mb-3 text-h2 font-medium">
                                 기타 기술 스택 추가
                             </h3>
                             <div className="grid gap-4 sm:grid-cols-3">
@@ -494,7 +506,7 @@ const ReadMePage = (): ReactElement => {
                         transition={{ delay: 0.4 }}
                         className="space-y-4"
                     >
-                        <label className="mb-3 block text-lg font-medium text-gray-700">
+                        <label className="mb-3 block text-h2 font-medium text-gray-700">
                             팀 멤버
                         </label>
                         <div className="grid gap-4 sm:grid-cols-12">
@@ -593,7 +605,7 @@ const ReadMePage = (): ReactElement => {
                         transition={{ delay: 0.5 }}
                         className="space-y-4"
                     >
-                        <label className="mb-3 block text-lg font-medium text-gray-700">
+                        <label className="mb-3 block text-h2 font-medium text-gray-700">
                             설치 방법
                         </label>
 

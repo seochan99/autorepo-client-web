@@ -45,6 +45,8 @@ const TemplateDetailPage = (): ReactElement => {
     }, [id, type]);
 
     const handleDownload = () => {
+        if (!template) return;
+
         const blob = new Blob([template.content], { type: 'text/markdown' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
